@@ -17,7 +17,7 @@ use base 'API::Plesk';
 use Data::Dumper;
 use Carp;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 NAME
 
@@ -145,7 +145,7 @@ sub _execute_query {
 __END__
 =head1 SEE ALSO
  
-Plesk XML RPC API  http://www.parallels.com/en/products/plesk/docs/
+Plesk Expand XML RPC API  http://www.parallels.com/en/products/plesk/expand/
 
 =head1 AUTHOR
 

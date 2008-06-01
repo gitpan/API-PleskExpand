@@ -2,4 +2,7 @@ Revision history for Perl extension API::PleskExpand.
 
 1.00 May 25 20:08:15 SAMST 2008
     - The first public release
+1.01 Jun 1 19:07:04 SAMST 2008
+    - Fix syntax error in Build.PL :(
+    - Fix errors in documentation
 
