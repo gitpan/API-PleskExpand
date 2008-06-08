@@ -10,7 +10,7 @@ use TestData;
 
 
 BEGIN {
-    plan tests => $ENV{online_stress_tests} ? 24 : 19;
+    plan tests => $ENV{online_stress_tests} ? 30 : 25;
     use_ok( 'API::PleskExpand' );
     use_ok( 'API::PleskExpand::Accounts' );
     use_ok( 'API::PleskExpand::Domains' );
@@ -32,7 +32,7 @@ isa_ok( $expand_client, 'API::PleskExpand', 'STATIC call new' );
 }
 
 
-my $create_request = API::PleskExpand::Accounts::create(
+my %create_account_data = (
     'select'        => 'optimal',
     'template-id'   =>  1,
     'general_info'  => {
@@ -52,9 +52,50 @@ my $create_request = API::PleskExpand::Accounts::create(
     }
 );
 
+
+my $create_request = API::PleskExpand::Accounts::create( %create_account_data );
+
 is_deeply($create_request . "\n", <<DOC, 'create account test');
 <add_use_template><gen_info><address></address><city></city><cname></cname><country>RU</country><email></email><fax></fax><login>suxdffffxx</login><passwd>1234d5678</passwd><pcode></pcode><phone></phone><pname>stdsdffafff</pname><state></state><status>0</status></gen_info><!-- create_client --><tmpl_id>1</tmpl_id><server_auto><optimal></optimal></server_auto></add_use_template>
 DOC
+
+is_deeply(
+    API::PleskExpand::Accounts::create( %create_account_data, select => ''),  
+    '',
+    'Manual select without server_id param'
+);
+
+like(
+    API::PleskExpand::Accounts::create( %create_account_data, select => '', server_id => 5),  
+    qr#<tmpl_id>1</tmpl_id><server_id>5</server_id></add_use_template>$#,
+    'Manual select without server_id param'
+);
+
+like(
+    API::PleskExpand::Accounts::create( %create_account_data, select => 'optimal', group_id => 2),
+    qr#<tmpl_id>1</tmpl_id><server_auto><optimal></optimal><group_id>2</group_id></server_auto></add_use_template>$#,
+    'Select "Optimal server" with group_id',
+);
+
+like(
+    API::PleskExpand::Accounts::create( %create_account_data, select => 'optimal', server_keyword => 'Hosting'),
+    qr#<server_auto><optimal></optimal></server_auto><server_keyword>Hosting</server_keyword></add_use_template>$#,
+    'Select "Optimal server" with keyword',
+);
+
+like(
+    API::PleskExpand::Accounts::create( %create_account_data, select => 'min_domains', server_keyword => 'Hosting'),
+    qr#<server_auto><min_domains></min_domains></server_auto><server_keyword>Hosting</server_keyword></add_use_template>$#,
+    'Select server has "max_diskspace" with keyword',
+);
+
+
+like(
+    API::PleskExpand::Accounts::create( %create_account_data, select => 'max_diskspace', server_keyword => 'Hosting'),
+    qr#<server_auto><max_diskspace></max_diskspace></server_auto><server_keyword>Hosting</server_keyword></add_use_template>$#,
+    'Select server has "min_domains" with keyword',
+);
+
 
 
 my $delete_query = API::PleskExpand::Accounts::delete( id => 15 );
@@ -224,12 +265,15 @@ for '<?xml version="1.0" encoding="UTF-8" standalone="no" ?><packet version="2.2
 
 exit unless $ENV{'online_stress_tests'};
 
+my ($domain_template_id, $client_template_id);
+$domain_template_id = $client_template_id = $ENV{template_id} || 1;
+
 diag "Online tests start!";
 # 5 tests -- full set !!!
 my $login = $ENV{'online_stress_tests_login'} || 'expandtestaccount';
 my $create_account_result = $expand_client->Accounts->create(
     'select'        => 'optimal',
-    'template-id'   =>  1,
+    'template-id'   =>  $client_template_id,
     'general_info'  => {
         login   => $login,
         pname   => $login,
@@ -275,7 +319,7 @@ if ($create_account_result->is_success) {
             my $create_domain = $expand_client->Domains->create(
                 dname           => $login . '.ru',
                 client_id       => $client_id,
-                'template-id'   => 1,
+                'template-id'   => $domain_template_id,
                 ftp_login       => $login,
                 ftp_password    => 'afsfsaf',
             );

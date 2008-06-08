@@ -45,6 +45,7 @@ None by default.
 =item create()
 
 Params:
+
   'select'        => 'optimal',
   'template-id'   =>  1,
   'general_info'  => {
@@ -58,10 +59,20 @@ Params:
     email   => '',
     address => '',
     city    => '',
-    state   => '',                  # state, for USA onlu
+    state   => '',                  # state, for USA only
     pcode   => '',
     country => 'RU',
   }
+
+You can let Plesk Expand automatically select a Plesk server based on certain filtering parameters (params for 'select' field):
+
+    'optimal' -- Least Integral Estimate (% used) selects the least loaded server (integrally estimated).
+    'min_domains' -- Least Domains (% used) registers a client on the server with the minimum number of domains.
+    'max_diskspace' -- Least Disk Space (% used) registers a client on the server with the minimum disk space used.
+    '' -- Select manually, Specify the target Plesk server by selecting its name from the list.
+ 	
+When choosing a 'manual' (select => '') option you should set server_id!
+For 'optimal', 'min_domains', 'max_diskspace' you can ask additional server group id ('group_id' params) or server keyword ('server_keyword' param);
 
 
 Return (Data::Dumper output):
@@ -97,9 +108,24 @@ sub create {
         my $select = '';
 
         if ($params{'select'}) {
-            $select = create_node( 'server_auto', create_node( $params{'select'}, ''));
+
+            if ( $params{'group_id'} ) {
+                $select = create_node( 'server_auto', create_node( $params{'select'}, '') . 
+                    create_node( 'group_id', $params{'group_id'} )  
+                );
+            } elsif ( $params{'server_keyword'} ) {
+                $select = create_node( 'server_auto', create_node( $params{'select'}, '')  ). 
+                    create_node( 'server_keyword', $params{'server_keyword'} );
+            } else {
+                 $select = create_node( 'server_auto', create_node( $params{'select'}, '') );
+            }
         } else {
-            return ''; # required!
+
+            if ( $params{'server_id'} ) {
+                $select = create_node( 'server_id', $params{'server_id'} );
+            } else {
+                return ''; # server_id required!
+            }
         }
         
         return create_node( 'add_use_template',

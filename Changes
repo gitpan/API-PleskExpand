@@ -5,4 +5,6 @@ Revision history for Perl extension API::PleskExpand.
 1.01 Jun 1 19:07:04 SAMST 2008
     - Fix syntax error in Build.PL :(
     - Fix errors in documentation
+1.02 Jun 8 13:32:18 SAMST 2008
+    - Full support all ways of choosing a Plesk server, where the client will be created (autoselect and manual)
 
