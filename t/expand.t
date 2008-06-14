@@ -10,7 +10,7 @@ use TestData;
 
 
 BEGIN {
-    plan tests => $ENV{online_stress_tests} ? 30 : 25;
+    plan tests => $ENV{online_stress_tests} ? 31 : 25;
     use_ok( 'API::PleskExpand' );
     use_ok( 'API::PleskExpand::Accounts' );
     use_ok( 'API::PleskExpand::Domains' );
@@ -312,6 +312,8 @@ if ($create_account_result->is_success) {
             id           => $client_id,
         );
 
+        my $plesk_id = $activate_result->get_data->[0]->{plesk_client_id};
+
         if ($activate_result->is_success) {
             pass "Activation success!";
 
@@ -326,21 +328,34 @@ if ($create_account_result->is_success) {
 
         
             if ($create_domain->is_success) {
-    
+   
                 pass "Create domain successful";
-                my $delete_result = $expand_client->Accounts->delete(
-                    id => $client_id,
+
+                my $nop_result = $expand_client->Accounts->modify(
+                    general_info => { },         # blank operation
+                    id           => $client_id,
                 );
+
+                if ($nop_result->is_success && $nop_result->get_data->[0]->{plesk_client_id} eq $plesk_id) {
+                    pass "Get plesk_id $plesk_id success";
+
+                    my $delete_result = $expand_client->Accounts->delete(
+                        id => $client_id,
+                    );
         
-                if ( $delete_result->is_success ) {
-                    pass "Delete account success";
+                    if ( $delete_result->is_success ) {
+                        pass "Delete account success";
+                    } else {
+                        fail "Remove account failed";   
+                        exit;
+                    }
+
                 } else {
-                    fail "Remove account failed";   
+                    fail "Get plesk_id failed";
                     exit;
-                }
-    
+                }      
             } else {
-                fail "Add domain failed!";
+                fail "Add domain failed! " . $create_domain->get_error_string;
                 exit;
             }
         } else {

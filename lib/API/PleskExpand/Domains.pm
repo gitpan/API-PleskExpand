@@ -14,7 +14,7 @@ use warnings;
 use API::Plesk::Methods;
 use Data::Dumper;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 =head1 NAME
 
@@ -40,6 +40,7 @@ The method used to add domain hosting account to a certain Plesk account from Pl
 =item create()
 
 Params:
+
   dname           => 'yandex.ru',
   client_id       => 9,
   'template-id'   => 1,             # domain template id
@@ -48,6 +49,7 @@ Params:
 
 
 Return:
+
   $VAR1 = bless( {
     'answer_data' => [ {
         'server_id'     => '1',
@@ -87,7 +89,6 @@ sub create {
             'vrt_hst',
             'ftp_login'    => $params{'ftp_login'},
             'ftp_password' => $params{'ftp_password'},
-            # 'ip_address'   => $params{'ip'}
         )
     );
     my $template_block =  create_node('tmpl_id', $params{'template-id'});
@@ -97,36 +98,9 @@ sub create {
             'gen_setup',
             create_node( 'name', $params{dname} ) .
             create_node( 'client_id', $params{client_id} ) .
-            # ip_address  => $params{ip}, 
             create_node( 'status', 0)
         ) . $hosting_block . '<!-- create_domain -->' . $template_block        
     );
-
-
-# найти способ выбирать шаблоны по имени
-# хостинг тариф
-my $hostN = <<DOC;
-    <add_use_template>
-        <gen_setup>
-            <name>google.com</name>
-            <client_id>10</client_id>
-            <status>0</status>
-        </gen_setup>
-        <hosting>
-            <vrt_hst>
-                <ftp_login>fsdf</ftp_login>
-                <ftp_password>qweqdsa</ftp_password>
-            </vrt_hst>
-        </hosting>
-    <!-- create_domain -->
-        <user>
-            <enabled>false</enabled>
-            <password>dasgfsfsdf</password>
-            <multiply_login>false</multiply_login>
-        </user>
-        <tmpl_id>1</tmpl_id>
-    </add_use_template>
-DOC
 }
 
 

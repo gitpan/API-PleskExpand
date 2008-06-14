@@ -14,7 +14,7 @@ use warnings;
 use API::Plesk::Methods;
 use Data::Dumper;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 =head1 NAME
 
@@ -154,6 +154,7 @@ Params:
 
 
 Return:
+
   $VAR1 = bless( {
     'answer_data' => [ {
         'server_id'       => '1',
@@ -168,6 +169,7 @@ Return:
 
 
 Example (client deactivation):
+
   print Dumper $client->Accounts->modify(
     id => 10, 
     general_info => { status => 16 }
@@ -295,7 +297,7 @@ sub delete_response_parse {
 # Get all element data
 # STATIC
 sub get {
-    # эээ, а как на него документацию получить-то в панели ? :) Обойдёмсо без него.
+    # N/A
 }
 
 

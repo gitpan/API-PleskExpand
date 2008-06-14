@@ -17,7 +17,7 @@ use base 'API::Plesk';
 use Data::Dumper;
 use Carp;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 =head1 NAME
 
@@ -89,6 +89,7 @@ All other methods are loaded by Autoload from corresponding modules.
 Execute some operations (see API::PleskExpand::* modules documentation).
 
 Example:
+
   my $res = $expand_client->Func_Module->operation_type(%params); 
   # Func_Module -- module in API/PleskExpand folder
   # operation_type -- sub which defined in Func_Module.

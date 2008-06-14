@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                API-PleskExpand
-version:             1.02
+version:             1.03
 abstract:            API::PleskExpand - OOP interface to the Plesk Expand XML API
 license:             perl
 author:              
