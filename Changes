@@ -9,3 +9,6 @@ Revision history for Perl extension API::PleskExpand.
     - Full support all ways of choosing a Plesk server, where the client will be created (autoselect and manual)
 1.03 Jun 14 12:16:24 SAMST 2008 
     - Fix documentation, add tests
+1.04 Jun 22 05:21:18 SAMST 2008
+    - Add ability to attaching domains and accounts to templates
+

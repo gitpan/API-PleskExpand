@@ -14,7 +14,7 @@ use warnings;
 use API::Plesk::Methods;
 use Data::Dumper;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 =head1 NAME
 
@@ -41,12 +41,12 @@ The method used to add domain hosting account to a certain Plesk account from Pl
 
 Params:
 
-  dname           => 'yandex.ru',
-  client_id       => 9,
-  'template-id'   => 1,             # domain template id
-  ftp_login       => 'nrgsdasd',
-  ftp_password    => 'dasdasd',
-
+  dname              => 'yandex.ru',   # domain name
+  client_id          => 9,             # add domain to client with certain id
+  'template-id'      => 1,             # domain template id
+  ftp_login          => 'nrgsdasd',    # username for ftp 
+  ftp_password       => 'dasdasd',     # password for ftp account
+  attach_to_template => 1,             # attach domain to template ? 1 -- yes, 0 -- no
 
 Return:
 
@@ -84,6 +84,8 @@ sub create {
                      $params{'ftp_password'} &&
                      $params{'template-id'};
 
+    $params{'attach_to_template'} ||= '';
+
     my $hosting_block = create_node('hosting',
         generate_info_block(
             'vrt_hst',
@@ -91,7 +93,8 @@ sub create {
             'ftp_password' => $params{'ftp_password'},
         )
     );
-    my $template_block =  create_node('tmpl_id', $params{'template-id'});
+    my $template_block =  create_node('tmpl_id', $params{'template-id'}) .
+        ( $params{'attach_to_template'} ? create_node('attach_to_template', '') : '' );
 
     return create_node( 'add_use_template',
         create_node( 

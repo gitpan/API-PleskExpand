@@ -10,7 +10,7 @@ use TestData;
 
 
 BEGIN {
-    plan tests => $ENV{online_stress_tests} ? 31 : 25;
+    plan tests => $ENV{online_stress_tests} ? 33 : 27;
     use_ok( 'API::PleskExpand' );
     use_ok( 'API::PleskExpand::Accounts' );
     use_ok( 'API::PleskExpand::Domains' );
@@ -55,9 +55,26 @@ my %create_account_data = (
 
 my $create_request = API::PleskExpand::Accounts::create( %create_account_data );
 
-is_deeply($create_request . "\n", <<DOC, 'create account test');
-<add_use_template><gen_info><address></address><city></city><cname></cname><country>RU</country><email></email><fax></fax><login>suxdffffxx</login><passwd>1234d5678</passwd><pcode></pcode><phone></phone><pname>stdsdffafff</pname><state></state><status>0</status></gen_info><!-- create_client --><tmpl_id>1</tmpl_id><server_auto><optimal></optimal></server_auto></add_use_template>
-DOC
+is_deeply($create_request, $_, 'create account test') for
+'<add_use_template><gen_info><address></address><city></city><cname></cname>'          .
+'<country>RU</country><email></email><fax></fax><login>suxdffffxx</login>'             .
+'<passwd>1234d5678</passwd><pcode></pcode><phone></phone><pname>stdsdffafff</pname>'   .
+'<state></state><status>0</status></gen_info><!-- create_client -->'                   .
+'<tmpl_id>1</tmpl_id><server_auto><optimal></optimal></server_auto></add_use_template>';
+
+$create_request = API::PleskExpand::Accounts::create(
+    %create_account_data,
+    'attach_to_template' => 1 
+);
+
+is_deeply($create_request, $_, 'create account test') for 
+'<add_use_template><gen_info><address></address><city></city><cname></cname>'        .
+'<country>RU</country><email></email><fax></fax><login>suxdffffxx</login>'           .
+'<passwd>1234d5678</passwd><pcode></pcode><phone></phone><pname>stdsdffafff</pname>' .
+'<state></state><status>0</status></gen_info><!-- create_client -->'                 .
+'<tmpl_id>1</tmpl_id><attach_to_template></attach_to_template><server_auto>'         .
+'<optimal></optimal></server_auto></add_use_template>';
+
 
 is_deeply(
     API::PleskExpand::Accounts::create( %create_account_data, select => ''),  
@@ -72,20 +89,28 @@ like(
 );
 
 like(
-    API::PleskExpand::Accounts::create( %create_account_data, select => 'optimal', group_id => 2),
-    qr#<tmpl_id>1</tmpl_id><server_auto><optimal></optimal><group_id>2</group_id></server_auto></add_use_template>$#,
+    API::PleskExpand::Accounts::create(
+        %create_account_data,
+        select   => 'optimal',
+        group_id => 2
+    ),
+    qr#<tmpl_id>1</tmpl_id><server_auto><optimal></optimal><group_id>2</group_id></server_auto></add_use_template>$#x,
     'Select "Optimal server" with group_id',
 );
 
 like(
-    API::PleskExpand::Accounts::create( %create_account_data, select => 'optimal', server_keyword => 'Hosting'),
+    API::PleskExpand::Accounts::create(
+        %create_account_data,
+        select         => 'optimal',
+        server_keyword => 'Hosting'
+    ),
     qr#<server_auto><optimal></optimal></server_auto><server_keyword>Hosting</server_keyword></add_use_template>$#,
     'Select "Optimal server" with keyword',
 );
 
 like(
     API::PleskExpand::Accounts::create( %create_account_data, select => 'min_domains', server_keyword => 'Hosting'),
-    qr#<server_auto><min_domains></min_domains></server_auto><server_keyword>Hosting</server_keyword></add_use_template>$#,
+    qr#<server_auto><min_domains></min_domains></server_auto><server_keyword>Hosting</server_keyword></add_use_template>$#x,
     'Select server has "max_diskspace" with keyword',
 );
 
@@ -111,9 +136,9 @@ my $modify_query = API::PleskExpand::Accounts::modify(
 );
 
 
-is_deeply( $modify_query . "\n", <<DOC, 'modify account test');
-<set><filter><id>15</id></filter><!-- modify_client --><values><gen_info><status>16</status></gen_info></values></set>
-DOC
+is_deeply( $modify_query, $_, 'modify account test') for
+'<set><filter><id>15</id></filter><!-- modify_client --><values>' .
+'<gen_info><status>16</status></gen_info></values></set>';
 
 
 my $modify_query_alter = API::PleskExpand::Accounts::modify(
@@ -122,24 +147,37 @@ my $modify_query_alter = API::PleskExpand::Accounts::modify(
 );
 
 
-is_deeply( $modify_query_alter . "\n", <<DOC, 'modify account test');
-<set><filter><id>5</id></filter><!-- modify_client --><values><gen_info><status>0</status></gen_info></values></set>
-DOC
+is_deeply( $modify_query_alter, $_, 'modify account test') for 
+'<set><filter><id>5</id></filter><!-- modify_client --><values>' .
+'<gen_info><status>0</status></gen_info></values></set>';
 
-
-my $create_domain = API::PleskExpand::Domains::create(
-    dname           => 'y2a1ddsdfandex.ru',
-    client_id       => 16,
-    'template-id'   => 1,
-    ftp_login       => 'nrddgddsdasd',
-    ftp_password    => 'dadsdasd',
+my %new_domain_data = (
+    dname               => 'y2a1ddsdfandex.ru',
+    client_id           => 16,
+    'template-id'       => 1,
+    ftp_login           => 'nrddgddsdasd',
+    ftp_password        => 'dadsdasd',
 );
 
+my $create_domain = API::PleskExpand::Domains::create( %new_domain_data );
 
-is_deeply( $create_domain . "\n", <<DOC, 'modify account test');
-<add_use_template><gen_setup><name>y2a1ddsdfandex.ru</name><client_id>16</client_id><status>0</status></gen_setup><hosting><vrt_hst><ftp_login>nrddgddsdasd</ftp_login><ftp_password>dadsdasd</ftp_password></vrt_hst></hosting><!-- create_domain --><tmpl_id>1</tmpl_id></add_use_template>
-DOC
 
+is_deeply( $create_domain, $_, 'modify account test') for 
+'<add_use_template><gen_setup><name>y2a1ddsdfandex.ru</name>'  .
+'<client_id>16</client_id><status>0</status></gen_setup>'      .
+'<hosting><vrt_hst><ftp_login>nrddgddsdasd</ftp_login>'        .
+'<ftp_password>dadsdasd</ftp_password></vrt_hst></hosting>'    .
+'<!-- create_domain --><tmpl_id>1</tmpl_id></add_use_template>';
+
+$create_domain = API::PleskExpand::Domains::create( %new_domain_data, attach_to_template  => 1 );
+
+is_deeply( $create_domain, $_, 'modify account test') for
+'<add_use_template><gen_setup><name>y2a1ddsdfandex.ru</name>' .
+'<client_id>16</client_id><status>0</status></gen_setup>'     .
+'<hosting><vrt_hst><ftp_login>nrddgddsdasd</ftp_login>'       .
+'<ftp_password>dadsdasd</ftp_password></vrt_hst></hosting>'   .
+'<!-- create_domain --><tmpl_id>1</tmpl_id>'                  .
+'<attach_to_template></attach_to_template></add_use_template>';
 
 $expand_client->{dump_headers} = 1; # debugg =)
 
@@ -175,10 +213,17 @@ my $req_answer1 = {
     errcode     => 4203,
 };
 
-is_deeply(API::PleskExpand::Accounts::create_response_parse(<<DOC ), $req_answer1, 'create with error parser');
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?><packet version="2.2.4.1"><add_use_template><result><status>error</status><errcode>4203</errcode><errtext>[Operator] Client already exists. Plesk client 'hello_medved' is exist.</errtext><server_id>1</server_id><tmpl_id>1</tmpl_id><expiration>-1</expiration></result></add_use_template></packet>
-DOC
-
+is_deeply(
+    API::PleskExpand::Accounts::create_response_parse( $_ ),
+    $req_answer1,
+    'create with error parser'
+) for
+'<?xml version="1.0" encoding="UTF-8" standalone="no" ?>'           .
+'<packet version="2.2.4.1"><add_use_template><result>'              .
+'<status>error</status><errcode>4203</errcode><errtext>'            .
+"[Operator] Client already exists. Plesk client 'hello_medved' "    .
+'is exist.</errtext><server_id>1</server_id><tmpl_id>1</tmpl_id>'   .
+'<expiration>-1</expiration></result></add_use_template></packet>';
 
 
 is_deeply(
@@ -191,9 +236,10 @@ is_deeply(
         'id'         => '29'
     },
     'parse success create xml response '
-) for '<?xml version="1.0" encoding="UTF-8" standalone="no" ?><packet version="2.2.4.1">' .
-      '<add_use_template><result><status>ok</status><id>29</id><server_id>1</server_id>'  .
-      '<tmpl_id>1</tmpl_id><expiration>-1</expiration></result></add_use_template></packet>';
+) for '<?xml version="1.0" encoding="UTF-8" standalone="no" ?>'    .
+'<packet version="2.2.4.1"><add_use_template><result><status>ok'   .
+'</status><id>29</id><server_id>1</server_id><tmpl_id>1</tmpl_id>' .
+'<expiration>-1</expiration></result></add_use_template></packet>' ;
 
 
 is_deeply(
@@ -272,8 +318,9 @@ diag "Online tests start!";
 # 5 tests -- full set !!!
 my $login = $ENV{'online_stress_tests_login'} || 'expandtestaccount';
 my $create_account_result = $expand_client->Accounts->create(
-    'select'        => 'optimal',
-    'template-id'   =>  $client_template_id,
+    'select'             => 'optimal',
+    'template-id'        =>  $client_template_id,
+    'attach_to_template' => 1,
     'general_info'  => {
         login   => $login,
         pname   => $login,
@@ -319,11 +366,12 @@ if ($create_account_result->is_success) {
 
             
             my $create_domain = $expand_client->Domains->create(
-                dname           => $login . '.ru',
-                client_id       => $client_id,
-                'template-id'   => $domain_template_id,
-                ftp_login       => $login,
-                ftp_password    => 'afsfsaf',
+                dname                => $login . '.ru',
+                client_id            => $client_id,
+                'template-id'        => $domain_template_id,
+                'attach_to_template' => 1,
+                ftp_login            => $login,
+                ftp_password         => 'afsfsaf',
             );
 
         
@@ -338,7 +386,7 @@ if ($create_account_result->is_success) {
 
                 if ($nop_result->is_success && $nop_result->get_data->[0]->{plesk_client_id} eq $plesk_id) {
                     pass "Get plesk_id $plesk_id success";
-
+                        
                     my $delete_result = $expand_client->Accounts->delete(
                         id => $client_id,
                     );

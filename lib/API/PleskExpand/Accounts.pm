@@ -14,7 +14,7 @@ use warnings;
 use API::Plesk::Methods;
 use Data::Dumper;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 =head1 NAME
 
@@ -46,8 +46,9 @@ None by default.
 
 Params:
 
-  'select'        => 'optimal',
-  'template-id'   =>  1,
+  'select'             => 'optimal',
+  'template-id'        =>  1,
+  'attach_to_template' => 1, # attach account to a certain template
   'general_info'  => {
     login   => 'plesk_login',
     pname   => 'perldonal name',
@@ -100,7 +101,8 @@ sub create {
         my $template = '';
         
         if ($params{'template-id'}) {
-            $template = create_node('tmpl_id', $params{'template-id'});
+            $template = create_node('tmpl_id', $params{'template-id'}) . 
+                ( $params{'attach_to_template'} ? create_node('attach_to_template', '') : '' );
         } else {
             return ''; # template required
         }
