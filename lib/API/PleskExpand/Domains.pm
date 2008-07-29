@@ -145,14 +145,32 @@ sub delete_response_parse {
 # Get all element data
 # STATIC
 sub get {
-    # stub
+    my %params = @_;
+
+    unless ($params{all}) {
+        return '';
+    }
+
+    #return '<get><filter></filter><dataset><gen_info/></dataset></get><!-- create_domain -->';
+
+    return create_node( 'get',
+        create_node('filter', '') . create_node( 'dataset', create_node('gen_info') )
+    ) . '<!-- create_domain -->';
 }
 
 
 # GET response handler 
 # STATIC
 sub get_response_parse {
-    # stub
+    my $answer = abstract_parser('get', +shift, [ ], 'system_error' );
+
+    if (ref $answer eq 'ARRAY') {
+        for my $domain (@$answer) {
+            $domain->{data} = xml_extract_values($domain->{data} =~ m#<gen_info>(.*?)</gen_info>#);
+        }
+    }
+
+    return $answer;
 }
 
 

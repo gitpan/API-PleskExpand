@@ -17,7 +17,7 @@ use base 'API::Plesk';
 use Data::Dumper;
 use Carp;
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 =head1 NAME
 

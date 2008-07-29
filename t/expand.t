@@ -3,6 +3,7 @@ use warnings;
 
 use Carp;
 use Test::More;
+use Test::LongString;
 use Data::Dumper;
 
 use lib 't';
@@ -10,7 +11,7 @@ use TestData;
 
 
 BEGIN {
-    plan tests => $ENV{online_stress_tests} ? 33 : 27;
+    plan tests => $ENV{online_stress_tests} ? 34 : 28;
     use_ok( 'API::PleskExpand' );
     use_ok( 'API::PleskExpand::Accounts' );
     use_ok( 'API::PleskExpand::Domains' );
@@ -55,7 +56,7 @@ my %create_account_data = (
 
 my $create_request = API::PleskExpand::Accounts::create( %create_account_data );
 
-is_deeply($create_request, $_, 'create account test') for
+is_string($create_request, $_, 'create account test') for
 '<add_use_template><gen_info><address></address><city></city><cname></cname>'          .
 '<country>RU</country><email></email><fax></fax><login>suxdffffxx</login>'             .
 '<passwd>1234d5678</passwd><pcode></pcode><phone></phone><pname>stdsdffafff</pname>'   .
@@ -67,7 +68,7 @@ $create_request = API::PleskExpand::Accounts::create(
     'attach_to_template' => 1 
 );
 
-is_deeply($create_request, $_, 'create account test') for 
+is_string($create_request, $_, 'create account test') for 
 '<add_use_template><gen_info><address></address><city></city><cname></cname>'        .
 '<country>RU</country><email></email><fax></fax><login>suxdffffxx</login>'           .
 '<passwd>1234d5678</passwd><pcode></pcode><phone></phone><pname>stdsdffafff</pname>' .
@@ -136,7 +137,7 @@ my $modify_query = API::PleskExpand::Accounts::modify(
 );
 
 
-is_deeply( $modify_query, $_, 'modify account test') for
+is_string( $modify_query, $_, 'modify account test') for
 '<set><filter><id>15</id></filter><!-- modify_client --><values>' .
 '<gen_info><status>16</status></gen_info></values></set>';
 
@@ -147,7 +148,7 @@ my $modify_query_alter = API::PleskExpand::Accounts::modify(
 );
 
 
-is_deeply( $modify_query_alter, $_, 'modify account test') for 
+is_string( $modify_query_alter, $_, 'modify account test') for 
 '<set><filter><id>5</id></filter><!-- modify_client --><values>' .
 '<gen_info><status>0</status></gen_info></values></set>';
 
@@ -162,7 +163,7 @@ my %new_domain_data = (
 my $create_domain = API::PleskExpand::Domains::create( %new_domain_data );
 
 
-is_deeply( $create_domain, $_, 'modify account test') for 
+is_string( $create_domain, $_, 'modify account test') for 
 '<add_use_template><gen_setup><name>y2a1ddsdfandex.ru</name>'  .
 '<client_id>16</client_id><status>0</status></gen_setup>'      .
 '<hosting><vrt_hst><ftp_login>nrddgddsdasd</ftp_login>'        .
@@ -171,7 +172,7 @@ is_deeply( $create_domain, $_, 'modify account test') for
 
 $create_domain = API::PleskExpand::Domains::create( %new_domain_data, attach_to_template  => 1 );
 
-is_deeply( $create_domain, $_, 'modify account test') for
+is_string( $create_domain, $_, 'modify account test') for
 '<add_use_template><gen_setup><name>y2a1ddsdfandex.ru</name>' .
 '<client_id>16</client_id><status>0</status></gen_setup>'     .
 '<hosting><vrt_hst><ftp_login>nrddgddsdasd</ftp_login>'       .
@@ -306,6 +307,11 @@ for '<?xml version="1.0" encoding="UTF-8" standalone="no" ?><packet version="2.2
     " Plesk domain 'yandex.ru' is exist.</errtext><client_id>40</client_id><server_id>1</server_id>"      .
     '<tmpl_id>1</tmpl_id><expiration>-1</expiration></result></add_use_template></packet>';
 
+is_string(
+    API::PleskExpand::Domains::get(all => 1),
+    '<get><filter></filter><dataset><gen_info/></dataset></get><!-- create_domain -->',
+    'Domains get'
+);
 
 
 
@@ -419,7 +425,3 @@ if ($create_account_result->is_success) {
     fail $create_account_result->get_error_string;
     exit;
 }
-
-exit;
-
-__END__

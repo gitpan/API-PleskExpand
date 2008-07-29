@@ -11,4 +11,5 @@ Revision history for Perl extension API::PleskExpand.
     - Fix documentation, add tests
 1.04 Jun 22 05:21:18 SAMST 2008
     - Add ability to attaching domains and accounts to templates
-
+1.05 Jul 29 23:33:12 SAMST 2008
+    - New function -- get all domains from Expand
