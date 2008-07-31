@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                API-PleskExpand
-version:             1.05
+version:             1.06
 abstract:            API::PleskExpand - OOP interface to the Plesk Expand XML API
 license:             perl
 author:              
@@ -8,7 +8,7 @@ author:
 generated_by:        ExtUtils::MakeMaker version 6.44
 distribution_type:   module
 requires:     
-    API::Plesk:                    1.04
+    API::Plesk:                    1.06
     Carp:                          0
     Data::Dumper:                  0
     Getopt::Long:                  0
@@ -16,6 +16,7 @@ requires:
     LWP::UserAgent:                0
     Test::LongString:              0
     Test::More:                    0
+    URI:                           0
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
     version: 1.3

@@ -13,3 +13,6 @@ Revision history for Perl extension API::PleskExpand.
     - Add ability to attaching domains and accounts to templates
 1.05 Jul 29 23:33:12 SAMST 2008
     - New function -- get all domains from Expand
+1.06 Jul 31 17:34:55 SAMST 2008
+    - Fixed Build.pl ( Test::LongString not in prereqs_build  list but required )
+    - Add URI.pm as required module
