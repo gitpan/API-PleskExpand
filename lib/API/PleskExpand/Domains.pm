@@ -168,6 +168,8 @@ sub get_response_parse {
         for my $domain (@$answer) {
             $domain->{data} = xml_extract_values($domain->{data} =~ m#<gen_info>(.*?)</gen_info>#);
         }
+    } elsif ($answer) {
+        $answer->{data} = xml_extract_values($answer->{data} =~ m#<gen_info>(.*?)</gen_info>#);
     }
 
     return $answer;

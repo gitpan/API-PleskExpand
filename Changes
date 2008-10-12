@@ -16,3 +16,6 @@ Revision history for Perl extension API::PleskExpand.
 1.06 Jul 31 17:34:55 SAMST 2008
     - Fixed Build.pl ( Test::LongString not in prereqs_build  list but required )
     - Add URI.pm as required module
+1.07 Sep 12 01:04:09 SAMST 2008
+    - New function -- get all accounts from Expand
+    - Fix function "get all domains from Expand" -- bug with one field answer

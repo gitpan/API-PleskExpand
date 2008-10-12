@@ -17,7 +17,7 @@ use base 'API::Plesk';
 use Data::Dumper;
 use Carp;
 
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 =head1 NAME
 
@@ -119,8 +119,9 @@ sub _execute_query {
     my $operator = '';
     
     if ($xml_request =~ m/create_client/is or
-        $xml_request =~ m/del_client/is       or
-        $xml_request =~ m/modify_client/is
+        $xml_request =~ m/del_client/is    or
+        $xml_request =~ m/modify_client/is or 
+        $xml_request =~ m/get_client/is
     ) {
         $operator = 'exp_plesk_client';
     } elsif ($xml_request =~ m/create_domain/is) {
